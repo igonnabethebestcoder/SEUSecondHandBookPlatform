@@ -1,0 +1,221 @@
+/* 基础样式 */  
+body {  
+    font-family: Arial, sans-serif;  
+    margin: 0;  
+    padding: 0;  
+}  
+  
+/* aside 区域样式 */  
+aside {  
+    top:0;
+    width: 200px; /* 可以根据需要调整宽度 */  
+    background-color: #f5f5f5;  
+    padding: 10px;  
+    border-right: 1px solid #ccc;  
+    position: fixed; /* 如果需要固定在侧边，可以使用这个属性 */  
+    height: 100vh; /* 垂直方向上填满整个视口 */  
+    overflow-y: auto; /* 如果内容过多，允许滚动 */  
+    box-shadow: 8px 8px 14px #06C;
+    border-radius: 8px;
+}  
+  
+/* section 标题样式 */  
+aside section h1 {  
+    margin: 0 0 10px 0;  
+    padding: 0;  
+    font-size: 16px;  
+    text-align: center;  
+}  
+  
+/* 用户信息展示样式 */  
+#userinfo {  
+    margin-bottom: 15px;  
+}  
+  
+#userinfo p {  
+    margin: 0;  
+    padding: 5px 0;  
+}  
+  
+/* 侧边选项列表样式 */  
+#sideChoice ul {  
+    list-style-type: none;  
+    padding: 0;  
+}  
+  
+#sideChoice li {  
+    padding: 5px 0;  
+    border-bottom: 1px solid #ddd;  
+}  
+  
+/* 列表项鼠标悬停样式 */  
+#sideChoice li:hover {  
+    background-color: #ddd;  
+    cursor: pointer;  
+}
+
+#shoppingCarList{
+    margin-left: 240px;
+    display:block;
+}
+
+#mainBookInfo tr{
+    background-color: #D3D3D3;  
+    height: 150px;
+}
+
+#mainBookInfo tr img{
+    width: 100px;
+}
+
+#mainBookInfo tr input{
+    position: left;
+}
+
+
+/* 确认删除对话框样式 */
+/* 模态框的样式 */  
+.modal {  
+    display: none; /* 隐藏模态框 */  
+    position: fixed; /* 固定在视口 */  
+    z-index: 1; /* 置于其他内容之上 */  
+    left: 0;  
+    top: 0;  
+    width: 100%; /* 全屏宽度 */  
+    height: 100%; /* 全屏高度 */  
+    overflow: auto; /* 允许滚动 */  
+    background-color: rgba(0, 0, 0, 0.5); /* 黑色背景，半透明 */  
+}  
+  
+/* 模态框内容 */  
+.modal-content {  
+    background-color: #fefefe;  
+    margin: 15% auto; /* 15% 从顶部开始，水平居中 */  
+    padding: 20px;  
+    border: 1px solid #888;  
+    width: 80%; /* 或指定宽度 */  
+}  
+  
+/* 关闭按钮 */  
+.close {  
+    color: #aaa;  
+    float: right;  
+    font-size: 28px;  
+    font-weight: bold;  
+    cursor: pointer;  
+}  
+  
+.close:hover,  
+.close:focus {  
+    color: black;  
+    text-decoration: none;  
+    cursor: pointer;  
+}  
+  
+/* 操作按钮样式（可选） */  
+.action-buttons button {  
+    margin-right: 10px;  
+}
+
+/* 聊天框 */
+.chat-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    z-index: 1000;
+}
+.chat-messages {
+    height: 400px;
+    overflow-y: scroll;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.chat-message {
+    margin-bottom: 10px;
+}
+.chat-message .user {
+    font-weight: bold;
+}
+.chat-input {
+    display: flex;
+}
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.chat-input button {
+    padding: 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.chat-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+    .message {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 10px;
+        max-width: 60%;
+        word-wrap: break-word;
+    }
+    .message.left {
+        background-color: #e1ffc7;
+        text-align: left;
+        margin-left: 10px;
+    }
+    .message.right {
+        background-color: #c7e1ff;
+        text-align: right;
+        margin-right: 10px;
+        margin-left: auto;
+    }
+
+    /* 申述和订单详情框 */
+    .newmodal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50%;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    .newmodal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+    .close-btn {
+        float: right;
+        cursor: pointer;
+        color: red;
+    }

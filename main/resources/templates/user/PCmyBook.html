@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的上传</title>
+    <link rel="stylesheet" href="/css/personalCenter.css">
+</head>
+
+<body>
+    <aside>
+        <section>
+            <div id="userinfo">
+                <!--请在这帮我完善用户信息展示-->
+                <p><strong>用户名:</strong> JohnDoe</p>  
+            </div>
+            <div id="sideChoice">
+                <ul>
+                    <li onclick="user.show_shoppingCar()">购物车</li>
+                    <li onclick="user.show_mySubmit()">我的上传</li>
+                    <li onclick="user.show_sold_out()">售出记录</li>
+                    <li bgcolor="D3D3D3" onclick="user.show_waitingToConfirm()">待确认订单</li>
+                    <li onclick="user.show_donedeal()">已结束订单</li>
+
+                </ul>
+            </div>
+        </section>
+    </aside>
+
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>
+                <th width="15%" ></th>        
+                <th width="10%" > 书籍名称</th> 
+                <th width="40">书籍信息</th>
+                <th width="10%">价格</th>
+                <th width="10%">操作1</th>
+                <th width="10%">操作2</th>
+            </thead>
+    
+            <tbody id="mainBookInfo">
+                <tbody id="mainBookInfo">
+                    <tr th:each="book : ${Books}" style="height: 150px; background-color: #D3D3D3;">
+                        <td>
+                            <input type="checkbox" id="checkbox1" value="选择">
+                            <img th:src="@{/images/{filename}(filename=${book.img})}" alt="图片加载失败" width="100px">
+                        </td>
+                        <td th:text="${book.bookname}"></td>
+                        <td>
+                            <p th:text="'作者: '+${book.writer}"></p>
+                            <p th:text="'出版社: '+${book.publisher}"></p>
+                            <p th:text="'书籍描述: '+${book.details}"></p>
+                        </td>
+                        <td th:text="'￥' + ${book.price}"></td>
+                        <td>
+                            <button th:onclick="|updateBook('${book.id}')|" id="updateMyBook">修改书籍信息</a>
+                        </td>
+                        <td>
+                            <button th:onclick="|deleteBook('${book.id}')|" class="delete-link">删除</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </tbody>
+        </table>
+        <!--删除确认框-->
+        <div id="myModal" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>你确定要执行删除该书籍吗？</p>  
+                <div class="action-buttons">  
+                    <button id="confirmBtn">确认</button>  
+                    <button id="cancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+    </div>
+</body>
+
+<script>
+        function updateBook(bookid) 
+        {  
+            var url = '/user/updateBook/' + bookid; 
+            window.open(url, '_blank');
+        }
+
+        function deleteBook(bookid)
+        {
+            let modal = document.getElementById('myModal');  
+            let spans = document.getElementsByClassName("close");
+            modal.style.display = "block";
+            spans.onclick = function() {  
+                modal.style.display = "none"; // 隐藏模态框  
+            };
+
+            let comfirm = document.getElementById("confirmBtn");
+            let cancel = document.getElementById("cancelBtn");
+            comfirm.onclick = function()
+            {
+                let url = '/user/deletebook/' + bookid;
+                fetch(url)
+                .then(response=>response.json())
+                .then(data=>{
+                    console.log(data);
+                    if (data.success || data)
+                    {
+                        alert("书籍已删除！");
+                        location.reload();
+                    }
+                    else    
+                        alert("书籍删除失败!");
+                    //让页面重新加载
+                })
+                .catch(error=>{
+                    console.error('Error:', error);  
+                })
+            }
+            cancel.onclick = function()
+            {
+                modal.style.display = "none";
+            }
+        }
+
+
+</script>
+<script src="/js/userinfo.js"></script>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>  
+<html xmlns:th="http://www.thymeleaf.org">  
+<head>  
+    <title>书籍展示</title>  
+    <!-- 引入你的CSS样式，如果需要的话 -->  
+    <link rel="stylesheet" type="text/css" href="/css/bookinfo.css" />  
+</head>  
+<body>  
+  
+<div class="book-container">  
+    <img th:src="@{/images/{filename}(filename=${book.img})}" alt="加载失败">
+  
+    <div class="book-details">  
+        <h1 th:text="${book.bookname}">书籍标题</h1>  
+        <p th:text="'作者：'+${book.writer}">作者</p>  
+        <p th:text="'出版社：'+${book.publisher}">出版社</p>  
+        <p th:text="'书籍描述：'+${book.details}">书籍描述</p>  
+        <p th:text="'￥'+${book.price}">价格</p>  
+    </div>  
+  
+    <div class="book-actions">  
+        <button th:onclick="'javascript:collectBook(\'' + ${book.id} + '\')'" class="btn btn-collect">加入购物车</button>  
+        <button th:onclick="'javascript:buyBook(\'' + ${book.id} + '\', \'' + ${book.ownerid} + '\')'" class="btn btn-buy">购买</button>  
+    </div>  
+</div>  
+
+<div class="order-container">  
+    <!-- 订单列表 -->  
+    <div class="order-item">  
+        <div class="order-header">  
+            <!-- <h3 th:text="'订单号：'+${order.id}">订单号</h3>   -->
+            <p>书籍号: <span th:text="${order.bookid}">书籍id</span></p>
+            <p>买家id: <span th:text="${order.buyerid}">买家名称</span></p>  
+            <p>卖家id: <span th:text="${order.sellerid}">卖家名称</span></p>  
+            <p>时间: <span th:text="${#temporals.format(order.happenedtime, 'yyyy-MM-dd HH:mm:ss')}">发生时间</span></p>
+            <p>价格: <span th:text="${order.price} + ' 元'">价格</span></p>  
+        </div>  
+  
+        <div class="order-actions">  
+            <!-- 退出按钮（位于右上角） -->  
+            <button class="close-btn" onclick="closeOrderModal()">  
+                取消  
+            </button>  
+  
+            <!-- 支付按钮（位于右下角） -->  
+            <button id="payBtn" class="pay-btn" th:onclick="'javascript:payForOrder(\'' + ${book.id} + '\')'">  
+                支付  
+            </button>  
+        </div>  
+    </div>  
+</div>
+
+<script th:inline="javascript">  
+    function collectBook(bookId) {  
+        // 发送请求到后端进行收藏操作  
+        let url = "/user/bookinfo/"+bookId+"/addToShoppingCar";
+        console.log(url)
+        fetch(url) 
+        .then(response => response.json()) // 解析返回的 JSON 响应  
+        .then(data => {  
+            console.log(data); 
+            alert("已加入购物车");
+        })  
+        .catch(error => {  
+            // 处理任何网络或解析错误  
+            console.log("错误");
+            console.error('Error:', error);  
+        });
+
+        console.log('收藏书籍ID: ' + bookId);  
+    }  
+  
+    function buyBook(bookid,ownerid) {  
+        let ordercontainer = document.getElementsByClassName("order-container")[0];
+        let url = "/user/buying/" + bookid + "/" + ownerid;
+        fetch(url)
+        .then(response=>response.json())
+        .then(data=>{
+            if (data.success || data)
+            {
+                console.log(data);
+                if(ordercontainer)
+                {
+                    ordercontainer.style.display = "block";
+                }
+            }
+            else
+            {
+                alert("这是你的书！无法购买自己的书籍！");
+            }
+        })
+    }  
+
+    function closeOrderModal() {  
+        // 这里处理退出逻辑，例如隐藏当前订单项或关闭模态框等  
+        alert('取消购买');  
+        let ordercontainer = document.getElementsByClassName("order-container")[0];
+        if(ordercontainer)
+        {
+            ordercontainer.style.display = "none";
+        }
+    }  
+    
+
+    //监听用户点击支付事件
+    // var payBtn = document.getElementById('payBtn');  
+      
+    // // 为支付按钮添加点击事件监听器  
+    // payBtn.addEventListener('click', function() {  
+    //     let curUrl = window.location.href;
+
+    //     var bookid = '示例订单ID'; // 你需要在这里替换为实际的订单ID  
+          
+    //     // 调用支付函数  
+    //     payForOrder(bookid);  
+    // });
+    
+    function payForOrder(bookid) {  
+        // 这里处理支付逻辑，orderId是订单的ID  
+        alert('你正在支付订单');  
+        let url = "/user/buying/"+bookid+"/paying"
+        fetch(url)
+        .then(response=>response.json())
+        .then(data=>{
+            if (data.success || data)
+            {
+                alert("支付成功！");
+                //跳转到我的购买记录页面
+                window.location.href = "/";
+            }
+            else
+                alert("支付失败，订单取消！");
+        })
+        .catch(error=>{
+            console.error(error);
+        })
+        // 你可以调用后端API进行支付操作  
+    }
+</script>  
+  
+</body>  
+</html>

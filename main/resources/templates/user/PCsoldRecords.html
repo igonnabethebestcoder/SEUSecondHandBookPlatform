@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出售记录</title>
+    <link rel="stylesheet" href="/css/personalCenter.css">
+</head>
+
+<body>
+    <aside>
+        <section>
+            <div id="userinfo">
+                <!--请在这帮我完善用户信息展示-->
+                <p><strong>用户名:</strong> JohnDoe</p>  
+            </div>
+            <div id="sideChoice">
+                <ul>
+                    <li onclick="user.show_shoppingCar()">购物车</li>
+                    <li onclick="user.show_mySubmit()">我的上传</li>
+                    <li onclick="user.show_sold_out()">售出记录</li>
+                    <li bgcolor="D3D3D3" onclick="user.show_waitingToConfirm()">待确认订单</li>
+                    <li onclick="user.show_donedeal()">已结束订单</li>
+                </ul>
+            </div>
+        </section>
+    </aside>
+
+    <!--我已经售出的书籍列表-->
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>
+                <th width="15%" ></th>        
+                <th width="10%" > 书籍名称</th> 
+                <th width="40">书籍信息</th>
+                <th width="10%">价格</th>
+                <th width="10%">申述记录</th>
+                <th width="10%">查看订单</th>
+                <th width="10%">联系买家</th>
+            </thead>
+    
+            <tbody id="mainBookInfo" th:each="book : ${Books}">
+                <tr style="height: 150px; background-color: #D3D3D3;">
+                    <td>
+                        <img th:src="@{/images/{filename}(filename=${book.img})}" alt="图片加载失败" width="100px">
+                    </td>
+                    <td th:text="${book.bookname}"></td>
+                    <td>
+                        <p th:text="'作者: '+${book.writer}"></p>
+                        <p th:text="'出版社: '+${book.publisher}"></p>
+                        <p th:text="'书籍描述: '+${book.details}"></p>
+                    </td>
+                    <td th:text="'￥' + ${book.price}"></td>
+                    <!-- 待修改 -->
+                    <td>
+                        <button id="updateMyBook" th:onclick = "|showAppealDetail('${book.ownerid}','${book.buyerid}', '${book.id}')|">查看申诉记录</a>
+                    </td>
+                    <td>
+                        <button class="delete-link" th:onclick = "|showOrderDetail('${book.ownerid}','${book.buyerid}', '${book.id}')|">查看订单详情</a>
+                    </td>
+                    <td>
+                        <button th:text="联系买家" th:onclick="|openChatBox('${book.buyerid}', '${book.id}')|"></button>
+                    </td>
+                </tr>
+                <!-- 聊天框 -->
+                <div class="chat-container" id="chatContainer">
+                    <span class="chat-close" onclick="closeChatBox()">&times;</span>
+                    <div>
+                        <P th:text="'书名: '+${book.bookname}"></P>
+                        <P th:text="'买家id: '+${book.buyerid}"></P>
+                    </div>
+                    <hr>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- 消息展示 -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="输入消息...">
+                        <button th:onclick="|sendMessage('${book.buyerid}', '${book.id}')|">发送</button>
+                    </div>
+                </div>
+            </tbody>
+        </table>
+
+        <!-- 订单详情模态框 -->
+        <div class="newmodal-overlay" id="orderDetailOverlay" onclick="closeOrderDetail()"></div>
+        <div class="newmodal" id="orderDetailModal">
+            <span class="close-btn" onclick="closeOrderDetail()">&times;</span>
+            <h2>订单详情</h2>
+            <div id="orderDetailContent">
+                <!-- 订单详情内容 -->
+            </div>
+        </div>
+
+        <!-- 申诉内容模态框 -->
+        <div class="newmodal-overlay" id="appealDetailOverlay" onclick="closeAppealDetail()"></div>
+        <div class="newmodal" id="appealDetailModal">
+            <span class="close-btn" onclick="closeAppealDetail()">&times;</span>
+            <h2>申诉详情</h2>
+            <div id="appealDetailContent">
+                <!-- 申诉内容 -->
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function showAppealDetail(ownerid, buyerid, bookid)
+    {
+        // 显示模态框
+        document.getElementById('appealDetailOverlay').style.display = 'block';
+        document.getElementById('appealDetailModal').style.display = 'block';
+
+        // 获取申诉内容
+        fetch(`/user/appealDetail/${ownerid}/${buyerid}/${bookid}`)
+        .then(response => response.json())
+        .then(data => {
+            let appealkuang = document.getElementById('appealDetailContent');
+            appealkuang.innerHTML = ''; // 清空现有消息
+            if(data.hasappeal == 0)
+            {
+                let p1 = document.createElement("p");
+                p1.innerText = "无用户申诉";
+                appealkuang.appendChild(p1);
+            }
+            else
+            {
+                appealkuang.innerHTML=`
+                <p>订单编号: ${data.id}</p>
+                <p>书籍名称: ${data.bookname}</p>
+                <p>买家id: ${data.buyerid}</p>
+                <p>申诉内容: ${data.detail}</p>
+                `;
+            }
+        })
+        .catch(error => console.error('Error fetching appeal details:', error));
+    }
+
+    function showOrderDetail(ownerid, buyerid, bookid)
+    {
+        document.getElementById('orderDetailOverlay').style.display = 'block';
+        document.getElementById('orderDetailModal').style.display = 'block';
+
+        // 获取订单详情
+        fetch(`/user/orderDetail/${ownerid}/${buyerid}/${bookid}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            let appealkuang = document.getElementById('orderDetailContent');
+            appealkuang.innerHTML = ''; // 清空现有消息
+            appealkuang.innerHTML = `
+                <p>订单编号: ${data.id}</p>
+                <p>书籍名称: ${data.bookname}</p>
+                <p>买家id: ${data.buyerid}</p>
+                <p>价格: ￥${data.price}</p>
+            `;
+            var paragraph1 = document.createElement('p');  
+            if (data.buyoutcome == 0) {  
+                paragraph1.innerText = "订单状态: 等待买家收货";  
+                appealkuang.appendChild(paragraph1);  
+            } else {  
+                paragraph1.innerText = "订单状态: 买家已确认收货";  
+                appealkuang.appendChild(paragraph1);  
+            }
+            let p = document.createElement('p');
+            if (data.hasappeal == 0)
+                p.innerText = "申诉状态: 无申诉";
+            else
+            {
+                if (data.appealoutcome == 0)
+                    p.innerText = "申诉状态: 被申诉\n申诉结果: 尚未被处理"
+                else if(data.appealoutcome == 1)
+                    p.innerText = "申诉状态: 被申诉\n申诉结果: 申诉通过，卖家需退款"
+                else
+                    p.innerText = "申诉状态: 被申诉\n申诉结果: 买家申诉失败"
+            }
+            appealkuang.appendChild(p);
+                
+        })
+        .catch(error => console.error('Error fetching order details:', error));
+    }
+
+    function closeAppealDetail() {
+        document.getElementById('appealDetailOverlay').style.display = 'none';
+        document.getElementById('appealDetailModal').style.display = 'none';
+    }
+    function closeOrderDetail() {
+        document.getElementById('orderDetailOverlay').style.display = 'none';
+        document.getElementById('orderDetailModal').style.display = 'none';
+    }
+
+
+    var socket;
+    var currentBookId;
+    var currentBuyerName;
+    function openChatBox(buyerid, bookid) {
+        currentBookId = bookid;
+        console.log(buyerid);
+        document.getElementById('chatContainer').style.display = 'block';
+        
+        if (!socket) {
+            connectWebSocket(buyerid, bookid);
+        } else {
+            // 从服务器获取消息历史
+            fetchHistory(buyerid, bookid);
+        }
+    }
+
+function closeChatBox()
+{
+    document.getElementById('chatContainer').style.display = 'none';
+}
+
+function connectWebSocket(buyerid, bookid) {
+    socket = new WebSocket('ws://122.9.5.126:8080/chat'); // 替换为你的WebSocket URL-ws://localhost:8080/chat
+
+    socket.onopen = function() {
+        console.log('WebSocket 连接已建立');
+        fetchHistory(buyerid, bookid); // 连接建立时获取历史记录
+    };
+
+    socket.onmessage = function(event) {
+        var [bookId, msg] = event.data.split(':', 2);
+        if (bookId == currentBookId) {
+            var chatMessages = document.getElementById('chatMessages');
+            var messageElement = document.createElement('div');
+            //接收到的消息一定在左边
+            messageElement.classList.add('message');
+            messageElement.classList.add('left');
+            messageElement.textContent = msg;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    };
+
+    socket.onclose = function() {
+        console.log('WebSocket 连接已关闭');
+    };
+}
+
+function fetchHistory(buyerid, bookid) {
+    fetch(`/chat/${bookid}/${buyerid}`)
+        .then(response => response.json())
+        .then(messages => {
+            console.log("应该载入历史消息");
+            console.log(messages.length);
+            var chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = ''; // 清空现有消息
+            currentBuyerName = messages[0].tousername;
+            messages.forEach(message => {
+                if(message.bookid != 0)
+                {
+                    //卖家视角
+                    var messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    if(message.fromusername == currentBuyerName)
+                        messageElement.classList.add('left');
+                    else
+                        messageElement.classList.add('right');
+                    messageElement.textContent = message.msg;
+                    chatMessages.appendChild(messageElement);
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching history:', error));
+}
+
+function sendMessage(toId, bookid) {
+    console.log("已发送消息");
+    var input = document.getElementById('chatInput');
+    var message = input.value;
+    if (message && socket && toId) {
+        // 消息格式 "toUserId:bookId:message"
+        socket.send(toId + ':' + bookid + ':' + message);
+        input.value = '';
+        var chatMessages = document.getElementById('chatMessages');
+        var messageElement = document.createElement('div');
+
+        //自己发送的消息一定在右边
+        messageElement.classList.add('message');
+        messageElement.classList.add('right');
+        messageElement.textContent = message;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+</script>
+<script src="/js/userinfo.js"></script>
+</html>

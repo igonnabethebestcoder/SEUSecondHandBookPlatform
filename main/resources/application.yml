@@ -1,0 +1,33 @@
+spring:
+    server:
+        address: 0.0.0.0
+        port: 8080
+  servlet:
+      multipart:
+        enabled: true
+        max-file-size: 10MB
+        max-request-size: 10MB
+        
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+ 
+  datasource:  
+    url: jdbc:mysql://122.9.5.126:3306/seu?useSSL=false&serverTimezone=UTC  
+    username: root  
+    password: nihao
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:  
+    open-in-view: false
+    show-sql: true  
+    hibernate:  
+      ddl-auto: update  
+      naming:  
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl  
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl  
+    properties:  
+      hibernate:  
+        dialect: org.hibernate.dialect.MySQL5Dialect
+COOKIE:  
+  VALIDITY: 3600

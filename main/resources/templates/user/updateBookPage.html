@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传书籍</title>
+    <link rel="stylesheet" href="/css/submitPage.css">
+</head>
+<body>
+    <form th:action="@{'/user/updateBook/' + ${book.id} + '/onsubmit'}" method="post" enctype="multipart/form-data" novalidate>  
+        <h2>更新书籍信息</h2>  
+        <p>书名：<input type="text" th:placeholder="请输入书籍名称" name="bookName" th:value="${book.bookname}" required="required"/></p>  
+        <p>作者：<input type="text" th:placeholder="请输入作者名称" name="author" th:value="${book.writer}"/></p>  
+        <p>出版社：<input type="text" th:placeholder="请输入出版社名称" name="publisher" th:value="${book.publisher}"/></p>  
+        <p>书籍类别：  
+            <select id="selectBookLable" name="bookLable" th:onchange="'javascript:Submitsystem.initBook()'" >  
+                <option value="" disabled selected>请选择书籍类别</option>  
+                <option th:each="label : ${SubLabels}"  
+                        th:value="${label.lable}"  
+                        th:text="${label.lable}"  
+                        th:selected="${label.lable == book.lable}">  
+                </option>
+            </select>  
+            <!--js上设置默认-->
+        </p>  
+        <p>出售价格：<input type="number" name="price" min="0" th:placeholder="请输入价格" th:value="${book.price}"/></p>  
+        <!-- <p>书籍图片：<input type="file" name="img" accept="image/*"/></p> -->
+        <p>书籍图片：<input type="file" name="img" accept="image/*"/></p>  
+        <p>书籍描述  
+            <textarea id="details" name="details" rows="7" cols="25" th:placeholder="说明书籍的新旧状况等">[[${book.details}]]</textarea>  
+        </p>  
+        <p><input type="submit" value="确认保存" th:onclick="'|javascript:saveUpdate(\'' + ${book.id} + '\')|'"></p>  
+    </form>
+    
+    <script async src="/js/bookinfo.js"></script>
+</body>
+</html>
