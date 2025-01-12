@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><!--xmlns:th="http://www.thymeleaf.org"需要放在html框内-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>东大二手书交易平台</title>
+    <link rel="stylesheet" href="/css/mainpage.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <!-- CSS属性书写顺序
+    1.布局定位属性(display,overflow,float等)   2.自身属性(width,height,margin等)   3.文本属性(color,font等)   4.其他属性(border-radius等)-->
+</head>
+
+<body>
+    <!-- 头部区域 -->
+    <div class="header w">
+        <!-- logo制作 -->
+        <div class="logo"><h1><a href="https://www.seu.edu.cn">东南大学</a></h1></div>
+
+        
+        <!-- 搜索栏制作 -->
+        <form th:action="@{/common/searchBook}" method="post" target="_blank">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="输入关键词" name="searchContent">
+                <button type="submit" id="searchBnt"></button>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+        </form>
+        <!-- 添加“高级搜索”按钮 -->
+        
+
+        <!-- 导航栏制作 -->
+        <!-- 实际开发中,会用li+a的做法,显示更清晰,且防止搜索引擎辨别为关键字堆砌嫌疑 -->
+        <div class="nav">
+            <ul>
+                <li><a onclick="openAdvancedSearch()">高级搜索</a></li>
+                <li><a th:href="@{/user/submitbook}" target="_blank">上传旧书</a></li>
+                <li th:if="${role == 1}"><a th:href="@{/user/shoppinglist}" target="_blank">个人中心</a></li><!--可能需要根据后端逻辑进行新的修改-->
+                <li th:if="${role == 2}"><a th:href="@{/manager/center}" target="_blank">管理员中心</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 精品推荐模块 -->
+    <div class="goods w">
+        <h3>热门书籍分类</h3>
+        <ul th:each="lable : ${Lables}">
+            <li><a th:text="${lable.lable}" th:href="'/common/searchBook/'+${lable.lable}" target="_blank"></li><!--需要点击href跳转相应标签页-->
+        </ul>
+        <a id="showMoreLable" onclick="BookManager.show_all_bookLable()">查看更多</a>
+    </div>
+    
+    <!-- 核心内容区域 -->
+    <div class="box w clearfix">
+        <div class="box-hd">
+            <h3>书籍推荐</h3>
+            <a id="showAll" onclick="BookManager.show_all()">查看全部</a>
+        </div>
+        <div id="show" class="box-bd">
+            <ul id="showlist" th:each="book : ${Books}">
+                <li>
+                    <p><a th:href="@{/common/bookinfo/{id}(id=${book.id})}">
+                        <img th:src="@{/images/{filename}(filename=${book.img})}" alt="加载失败">
+                    </a></p>
+                    <a th:href="@{/common/bookinfo/{id}(id=${book.id})}" th:text="${book.bookname}" ></a><!--我需要点击后可以展示-->
+                    <h4 th:text="'￥'+${book.price}"></h4>
+                </li>
+                <!-- 如果需要显示更多信息，可以添加更多<li>或<div>等元素 -->
+            </ul>  
+        </div> 
+    </div>
+    <!-- 高级搜索框 -->
+    <div class="advanced-search-overlay" id="advancedSearchOverlay" onclick="closeAdvancedSearch()"></div>
+    <div class="advanced-search-container" id="advancedSearchContainer">
+        <h2>高级搜索</h2>
+        <form th:action="@{/common/advanceSearch}" method="post">
+            <div>
+                <label for="bookName">书名:</label>
+                <input type="text" id="bookName" name="bookName">
+            </div>
+            <div>
+                <label for="author">作者:</label>
+                <input type="text" id="author" name="author">
+            </div>
+            <div>
+                <label for="publisher">出版社:</label>
+                <input type="text" id="publisher" name="publisher">
+            </div>
+            <div>
+                <label for="label">标签类型:</label>
+                <input type="text" id="label" name="label">
+            </div>
+            <div>
+                <button type="submit">搜索</button>
+                <button type="button" onclick="closeAdvancedSearch()">取消</button>
+            </div>
+        </form>
+    </div>
+
+
+
+    <!--网页尾for加载更多-->
+    <footer>
+        <div id="loadmore"><li onclick="BookManager.show_more()">加载更多</li></div>
+    </footer>
+
+
+    <!--用户登录弹窗-->
+    <div id="userloginModal" class="usermodal">    
+        <div class="modal-content" id="userclose">  
+            <form class="loginForm" onsubmit="event.preventDefault(); usersubmitForm(event)">  
+                <span class="close">&times;</span>    
+                <h2 id ="loginID">用户登录</h2>    
+                <label for="username">一卡通号:</label><br>    
+                <input type="text" class="loginput" id="username" name="userid"><br>    
+                <label for="password">密码:</label><br>    
+                <input type="password" class="loginput" id="userpassword" name="password"><br>    
+                <input type="submit" class="submit" value="登录">  
+            </form>  
+        </div>  
+    </div> 
+    
+
+    <!--管理员登录弹窗-->
+    <div id="managerloginModal" class="managermodal">    
+        <div class="modal-content" >  
+            <form class="loginForm" onsubmit="event.preventDefault(); managersubmitForm(event)">  
+                <span class="close" id="managerclose">&times;</span>    
+                <h2 id ="loginID">管理员登录</h2>    
+                <label for="username">一卡通号:</label><br>    
+                <input type="text" class="loginput" id="managername" name="managerid" required><br>    
+                <label for="password">密码:</label><br>    
+                <input type="password" class="loginput" id="managerpassword" name="password" required><br>    
+                <input type="submit" class="submit" value="登录">  
+            </form>  
+        </div>  
+    </div> 
+
+    <!--引入js文件-->
+    <script async src="/js/signuplogin.js"></script>
+    <script async src="/js/search.js"></script>
+    <script async src="/js/userinfo.js"></script>
+    <script async src="/js/bookinfo.js"></script>
+    
+</body>
+<script>
+    function openAdvancedSearch() {
+        document.getElementById('advancedSearchOverlay').style.display = 'block';
+        document.getElementById('advancedSearchContainer').style.display = 'block';
+    }
+
+    function closeAdvancedSearch() {
+        document.getElementById('advancedSearchOverlay').style.display = 'none';
+        document.getElementById('advancedSearchContainer').style.display = 'none';
+    }
+</script>
+</html>

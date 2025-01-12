@@ -1,0 +1,119 @@
+/* 样式表：book-display.css */  
+  
+/* 书籍容器样式 */  
+.book-container {  
+    display: flex;  
+    flex-direction: column;  
+    align-items: center;  
+    justify-content: center;  
+    height: 100vh; /* 使容器占据整个视口的高度 */  
+    text-align: center; /* 使文本内容在容器中居中 */  
+    padding: 20px;  
+}  
+  
+/* 书籍图片样式 */  
+.book-container img {  
+    max-width: 100%; /* 图片宽度不超过容器宽度 */  
+    height: auto; /* 图片高度自动以保持比例 */  
+    margin-bottom: 20px; /* 图片下方添加一些间距 */  
+}  
+  
+/* 书籍详情样式 */  
+.book-details {  
+    text-align: left; /* 详情文本左对齐 */  
+    margin-bottom: 20px; /* 详情下方添加一些间距 */  
+}  
+  
+/* 书籍动作按钮样式 */  
+.book-actions {  
+    display: flex;  
+    justify-content: flex-end; /* 按钮组右对齐 */  
+}  
+  
+.book-actions .btn {  
+    display: inline-block;  
+    padding: 10px 20px;  
+    margin-left: 10px; /* 按钮之间添加间距 */  
+    font-size: 16px;  
+    color: white;  
+    border: none;  
+    border-radius: 5px;  
+    cursor: pointer;  
+}  
+  
+.btn-collect {  
+    background-color: #4CAF50; /* 绿色，表示收藏 */  
+}  
+  
+.btn-buy {  
+    background-color: #f44336; /* 红色，表示购买 */  
+}  
+  
+/* 其他可能的样式，比如标题和段落的样式 */  
+h1 {  
+    font-size: 2em;  
+    margin-bottom: 10px;  
+}  
+  
+p {  
+    font-size: 1em;  
+    line-height: 1.5;  
+}
+
+
+/* 基本样式 */  
+body {  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 100vh; /* 使body占据整个视口的高度 */  
+    margin: 0;  
+    padding: 0;  
+    font-family: Arial, sans-serif;  
+}  
+  
+.order-container {  
+    display: none;
+    text-align: center; /* 容器内部文本居中（如果需要的话） */  
+    max-width: 800px; /* 设置最大宽度以适应不同屏幕尺寸 */  
+    /* 其他样式，如背景色、边框、内边距等 */  
+    background-color: #f5f5f5;  
+    padding: 20px;  
+    border: 1px solid #ccc;  
+    border-radius: 5px;  
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  
+}  
+  
+.order-item {  
+    margin-bottom: 20px; /* 每个订单项之间有一点间距 */  
+    /* 其他订单项的样式 */  
+}  
+  
+
+  
+.order-actions {  
+    display: flex;  
+    justify-content: space-between; /* 使按钮分布在左右两侧 */  
+    align-items: center;  
+    margin-top: 10px; /* 与订单头部之间有一点间距 */  
+}  
+  
+.close-btn, .pay-btn {  
+    /* 按钮样式 */  
+    padding: 5px 10px;  
+    border: none;  
+    border-radius: 3px;  
+    cursor: pointer;  
+}  
+  
+.close-btn {  
+    background-color: #ff5733; /* 退出按钮背景色 */  
+    color: white; /* 退出按钮文字颜色 */  
+}  
+  
+.pay-btn {  
+    background-color: #4CAF50; /* 支付按钮背景色 */  
+    color: white; /* 支付按钮文字颜色 */  
+}  
+  
+/* 其他需要的样式... */

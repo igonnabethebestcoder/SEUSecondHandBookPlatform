@@ -1,0 +1,426 @@
+* {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.w {/*相当于wrapper*/
+    width: 1200px;
+    margin: auto;
+}
+
+body {
+    background-color: #f3f5f7;
+}
+
+.header {
+    height: 42px;
+    margin: 30px auto;
+}
+
+.header .logo {
+    display: block;
+    width: 157px;
+    height: 42px;
+    float: left;
+    background-image: url(./image/校徽.jpg);
+    font-size: 0;
+}
+
+.nav {
+    float: left;
+    margin-left: 30px;
+}
+
+.nav li {
+    float: left;
+    /* 导航栏不用给宽度,将来可以添加其余文字 */
+    margin: 0 15px;
+}
+
+.nav li a {
+    display: block;
+    height: 42px;
+    padding: 0 10px;
+    line-height: 42px;
+    color: #050505;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.nav li a:hover {
+    border-bottom: 2px solid #00a4ff;
+    color: #00a4ff;
+    cursor: pointer;
+}
+
+.search {
+    width: 412px;
+    height: 42px;
+    background-color: skyblue;
+    float: left;
+    margin-left: 70px;
+    position: relative; /* 设置为相对定位，以便子元素可以相对于它进行定位 */  
+    /* 其他样式保持不变 */
+}
+
+.search input {
+    float: left;
+    width: 345px;
+    height: 40px;
+    border: 1px solid #00a4ff;
+    border-right: 0;
+    font-size: 14px;
+    padding-left: 15px;
+}
+
+.search button {
+    width: 50px;
+    height: 42px;
+    background-color: #00a4ff;
+    /* button默认有边框,取消即可 */
+    border: 0;
+    float: left;
+    /* 都要加float,这样没有距离才会上去 */
+    background: url(./image/button.png);
+}
+
+.suggestions {  
+    display: none;  
+    position: absolute;  
+    width: 100%; /* 与搜索栏宽度相同 */  
+    max-height: 200px; /* 限制提示栏的最大高度，防止过高 */  
+    overflow-y: auto; /* 如果内容过多，则出现滚动条 */  
+    background-color: #fff;  
+    border: 1px solid #ccc;  
+    z-index: 1; /* 确保建议框在其它元素之上 */  
+    list-style: none;  
+    padding: 0;  
+    margin: 0;  
+    /* 设置提示栏出现在搜索栏的下方 */  
+    top: 100%; /* 紧贴搜索栏下方 */  
+    left: 0; /* 与搜索栏左对齐 */  
+}  
+  
+.suggestions li {  
+    padding: 10px;  
+    cursor: pointer;  
+}  
+  
+.suggestions li:hover {  
+    background-color: #f5f5f5;  
+}
+
+.user {
+    float: right;
+    margin-right: 30px;
+    font-style: 14px;
+    color: #666;
+}
+.user a{
+    padding-top: 10px;
+}
+.user a:hover{
+    color: red;
+}
+.user button{
+    width: 30px;
+    height: 30px;
+    background-color: #00a4ff;
+    /* button默认有边框,取消即可 */
+    border: 0;
+    float: left;
+    /* 都要加float,这样没有距离才会上去 */
+    background: url(./image/user.png);
+}
+
+.subnav {
+    float: left;
+    width: 190px;
+    height: 421px;
+    background-color: rgba(0, 0, 0, .3);
+}
+
+.subnav ul li {
+    height: 45px;
+    line-height: 45px;
+    padding: 0 20px;
+}
+
+.subnav ul li a {
+    font-size: 14px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.subnav ul li a span {
+    float: right;
+}
+
+.subnav ul li a:hover {
+    color: #00a4ff;
+}
+
+.course {
+    width: 230px;
+    height: 300px;
+    background-color: #fff;
+    float: right;
+    /* 浮动的盒子不会有外边距合并的问题 */
+    margin-top: 50px;
+}
+
+.course h2 {
+    height: 48px;
+    background-color: #9bceea;
+    text-align: center;
+    line-height: 48px;
+    font-size: 18px;
+    color: white
+}
+
+.bd {
+    padding: 0 20px;
+}
+
+.bd li {
+    padding: 13px 0;
+    border-bottom: 1px solid #a5a5a5;
+}
+
+.bd li h4 {
+    font-size: 16px;
+    color: #4e4e4e;
+}
+
+.bd li p {
+    font-size: 12px;
+    color: #a5a5a5;
+}
+
+.bd .more {
+    display: block;
+    height: 38px;
+    border: 1px solid #00a4ff;
+    text-align: center;
+    line-height: 38px;
+    color: #00a4ff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 5px;
+    text-decoration: none;
+}
+
+.goods {
+    height: 60px;
+    background-color: #fff;
+    box-shadow: 0 4px 3px 3px rgba(0, 0, 0, .1);
+    margin-top: 10px;
+    /* 行高会继承 */
+    line-height: 60px;
+    position: relative;
+}
+
+.goods h3 {
+    float: left;
+    margin-left: 30px;
+    font-size: 16px;
+    color: #00a4ff;
+}
+
+.goods ul {
+    float: left;
+    margin-left: 30px;
+}
+
+.goods li {
+    float: left;
+}
+
+.goods a {
+    text-decoration: none;
+}
+
+.goods li a {
+    border-left: 1px solid #ccc;
+    padding: 0 30px;
+}
+
+#showMoreLable {
+    float: right;
+    margin-right: 30px;
+    font-size: 14px;
+    color: #00a4ff;
+}
+
+#showMoreLable:hover{
+    color:red;
+    cursor: pointer;
+}
+
+
+
+.box {
+    margin-top: 30px;
+}
+
+.box-hd {
+    height: 45px;
+}
+
+.box-hd h3 {
+    float: left;
+    font-size: 20px;
+    color: #494949;
+}
+
+.box-hd a {
+    float: right;
+    font-size: 12px;
+    color: #a5a5a5;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-right: 30px;
+}
+
+.box-bd ul {
+    /* 把ul长度改成可以装五个就可以了 */
+    width: 1225px;
+}
+
+.box-bd ul li {
+    float: left;
+    width: 220px;
+    height: 270px;
+    background-color: #fff;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 8px 8px 14px #06C;
+    flex-direction: column; /* 垂直排列 */
+    align-items: center; /* 居中对齐子元素 */
+    justify-content: center; /* 居中对齐子元素 */
+    overflow: hidden; /* 确保图片不会超出容器 */
+    text-align: center; /* 居中文本 */
+}
+
+.box-bd ul li>img {
+    /* 强制把图像修改的与父元素相同宽度 */
+    width: 100%;
+}
+
+.box-bd ul li img {  
+    transition: transform 0.3s ease-in-out; /* 添加过渡效果 */  
+    padding: 47px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}  
+
+.box-bd ul li img:hover {  
+    transform: scale(0.8); /* 缩小到原始大小的80% */  
+}
+
+.box-bd ul li em {
+    position: absolute;
+    right: -4px;
+    top: 10px;
+}
+
+.box-bd ul li h4 {
+    margin: 0 20px 0 25px;
+    color: #050505;
+    font-weight: 400;
+    font-size: 14px;
+    margin: 20px;
+    margin-left: 25px;
+}
+
+.box-bd .info {
+    margin: 0 20px 0 25px;
+    font-size: 12px;
+    color: #999;
+}
+
+.box-bd .info span {
+    color: #ff7c2d;
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: "";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+
+.links {
+    float: right;
+}
+
+.links dl {
+    float: right;
+    margin-left: 100px;
+}
+
+.links dl dt {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.links dl dd a {
+    color: #333;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+#loadmore{
+    position: fixed;  
+    bottom: 0;  
+    left: 50%;  
+    transform: translateX(-50%); /* 水平居中 */  
+    padding: 10px; /* 或其他合适的内边距 */  
+    background-color: #f0f0f0; /* 或其他背景色 */  
+    text-align: center; /* 文本居中 */  
+    width: 100%; /* 或其他合适的宽度 */  
+    box-sizing: border-box; /* 包含内边距和边框 */
+}
+
+#loadmore li:hover {  
+    color: #007BFF;
+    cursor: pointer;
+}
+
+#showAll:hover{
+    cursor: pointer;
+    color:brown;
+}
+
+/* 添加高级搜索框的样式 */
+.advanced-search-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+.advanced-search-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
