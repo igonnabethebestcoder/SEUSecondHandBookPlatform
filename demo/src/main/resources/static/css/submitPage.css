@@ -1,0 +1,50 @@
+body {  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 100vh;  
+    margin: 0;  
+    background-color: #f0f0f0; 
+    font-family: Arial, sans-serif; 
+    background-image: url("./image/guideLine.jpg");
+    background-size: cover; /* 添加这一行来等比缩放背景图片 */  
+    background-position: center; /* 可以添加这一行来确保图片居中显示 */  
+    background-repeat: no-repeat; /* 确保图片不重复 */
+}  
+  
+form {  
+    background-color: #fff;  
+    padding: 20px;  
+    border-radius: 5px;  
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);  
+}  
+  
+form p {  
+    margin-bottom: 10px;  
+}  
+  
+form input[type="text"],  
+form input[type="number"],  
+form textarea {  
+    width: 100%;  
+    padding: 10px;  
+    border-radius: 5px;  
+    border: 1px solid #ccc;  
+    box-sizing: border-box;  
+}  
+  
+form textarea {  
+    resize: none; /* 禁止用户调整textarea的大小 */  
+}  
+  
+form select {  
+    width: 100%;  
+    padding: 10px;  
+    border-radius: 5px;  
+    border: 1px solid #ccc;  
+    box-sizing: border-box;  
+}  
+  
+form p:last-child {  
+    margin-top: 20px;  
+}

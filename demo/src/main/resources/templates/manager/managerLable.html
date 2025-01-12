@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员中心</title>
+    <link rel="stylesheet" href="/css/manager.css">
+</head>
+<body>
+    <!-- 头部区域 -->
+    <div class="header w">
+        <!-- logo制作 -->
+        <div class="logo"><h1><a href="https://www.seu.edu.cn">东南大学</a></h1></div>
+
+        
+        <!-- 搜索栏制作 -->
+        <form th:action="@{/common/searchBook}" method="post" target="_blank">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="输入关键词" name="searchContent">
+                <button type="submit" id="searchBnt"></button>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+        </form>
+
+
+        <!-- 导航栏制作 -->
+        <!-- 实际开发中,会用li+a的做法,显示更清晰,且防止搜索引擎辨别为关键字堆砌嫌疑 -->
+        <div class="nav">
+            <ul>
+                <li><a th:href="@{/manager/lable}" target="_blank">书籍标签管理</a></li>
+                <li><a th:href="@{/manager/manageuser}" target="_blank">用户管理</a></li><!--可能需要根据后端逻辑进行新的修改-->
+                <li><a th:href="@{/manager/handleappeal}" target="_blank">用户申诉处理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!--侧边栏-->
+    <aside>
+        <section>
+            <div id="sideChoice">
+                <ul>
+                    <li onclick="addLable()">添加书籍标签</li>
+                </ul>
+            </div>
+        </section>
+    </aside>
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>
+                <th width="30%" > 标签号</th> 
+                <th width="40%">标签名</th>
+                <th width="30%" > 操作</th> 
+            </thead>
+    
+            <tbody id="mainBookInfo">
+                <tr th:each="lable : ${lables}">  
+                    <!-- 使用th:text或{{}}（取决于你的Thymeleaf版本和配置）来显示标签的属性 -->  
+                    <td th:text="${lable.id}" width="30%"></td> <!-- 假设'id'是标签号的属性 -->  
+                    <td th:text="${lable.lable}" width="40%"></td> <!-- 假设'name'是标签名的属性 -->  
+                    <td width="30%">  
+                        <!-- 这里可以添加一些操作按钮或链接，例如编辑或删除 -->  
+                        <button th:text="'编辑'" th:value="${lable.id}" onclick="editLable(this)"></button>  
+                        <!-- 注意：th:onclick中的JavaScript代码是示例，你可能需要根据你的实际需求来调整 -->  
+                    </td>  
+                </tr>
+            </tbody>
+        </table>
+        <!--标签修改框-->
+        <div id="myModal" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <input type="text" placeholder="请输入修改后的标签" id="lableeditor" required>
+                <div class="action-buttons">  
+                    <button id="confirmBtn">确认</button>  
+                    <button id="cancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+        <!--添加书籍标签表单-->
+        <form id="bookLabelForm" th:action="@{/manager/addlable}" method="post">  
+            <!-- 表单内容，如书籍标签的输入框等  -->
+            <input type="text" placeholder="请输入书籍标签" name = "lable" required >  
+            <br><br>  
+            <button type="submit" class="form-button">确认</button>  
+            <button type="button" class="form-button" onclick="hideForm()">取消</button>  
+        </form>
+    </div>
+</body>
+<script>
+    function addLable()
+    {
+        // 显示表单  
+        document.getElementById('bookLabelForm').style.display = 'block';
+    }
+
+    function hideForm() {  
+        // 隐藏表单  
+        document.getElementById('bookLabelForm').style.display = 'none';  
+    }
+
+    function editLable(button)
+    {
+        var oldlable = button.value;
+        console.log(oldlable);
+
+        let editbox = document.getElementById("myModal");
+        editbox.style.display = 'block';
+
+        let cancel = document.getElementById("cancelBtn");
+        cancel.onclick = function()
+        {
+            editbox.style.display = 'none';
+        };
+
+        let spans = document.getElementsByClassName("close");
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+                editbox.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let confirm = document.getElementById("confirmBtn");
+        confirm.onclick = function()
+        {
+            let lableEditor = document.getElementById("lableeditor");
+            let newlable = lableEditor.value;
+            let url  = "/manager/editlable/"+oldlable+"/"+newlable;
+            console.log(oldlable);
+            fetch(url)
+            .then(response=>response.json())
+            .then(data=>{
+                console.log(data);
+                if (data.success || data)
+                    {alert("标签修改成功!");
+                    location.reload();}
+                else
+                    alert("标签修改失败!");
+                
+            })
+            .catch(error=>{
+                console.error('Error:', error);  
+            })
+        }
+    }
+</script>
+</html>

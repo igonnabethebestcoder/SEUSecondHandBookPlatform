@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待确认订单页面</title>
+    <link rel="stylesheet" href="/css/personalCenter.css">
+</head>
+
+<body>
+    <aside>
+        <section>
+            <div id="userinfo">
+                <!--请在这帮我完善用户信息展示-->
+                <p><strong>用户名:</strong> JohnDoe</p>  
+            </div>
+            <div id="sideChoice">
+                <ul>
+                    <li onclick="user.show_shoppingCar()">购物车</li>
+                    <li onclick="user.show_mySubmit()">我的上传</li>
+                    <li onclick="user.show_sold_out()">售出记录</li>
+                    <li bgcolor="D3D3D3" onclick="user.show_waitingToConfirm()">待确认订单</li>
+                    <li onclick="user.show_donedeal()">已结束订单</li>
+                </ul>
+            </div>
+        </section>
+    </aside>
+
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>       
+                <th width="15%" ></th>  
+                <th width="10%" > 书籍名称</th> 
+                <th width="40">订单信息</th><!--订单号，交易时间，买家-->
+                <th width="10%">价格</th>
+                <th width="10%">申诉</th>
+                <th width="10%">确认收货</th>
+                <th width="10%">联系卖家</th>
+            </thead>
+
+            <tbody id="mainBookInfo" th:each="order : ${orders}">
+                <tr style="height: 150px; background-color: #D3D3D3;">
+                    <td>
+                        <img th:src="@{/images/{filename}(filename=${order.img})}" alt="图片加载失败" >
+                    </td>
+                    <td th:text="${order.bookname}"></td>
+                    <td>
+                        <p th:text="'卖家id：' + ${order.sellerid}"></p>
+                        <p th:text="'书籍id：' + ${order.bookid}"></p>
+                        <p th:text="'交易时间：' + ${order.happenedtime}"></p>
+                    </td>
+                    <td th:text="'￥' + ${order.price}"></td>
+                    <td>
+                        <button th:onclick="|showAppealInput('${order.id}')|" th:text="申诉">
+                    </td>
+                    <td>
+                        <button  th:text="确认收货" th:onclick="|shouhuo('${order.id}')|">
+                    </td>
+                    <td>
+                        <button th:text="联系卖家" th:onclick="|openChatBox('${order.sellerid}', '${order.bookid}')|"></button>
+                    </td>
+                </tr>
+
+                <!-- 聊天框 -->
+                <div class="chat-container" id="chatContainer">
+                    <span class="chat-close" onclick="closeChatBox()">&times;</span>
+                    <div>
+                        <P th:text="'书名: '+${order.bookname}"></P>
+                        <P th:text="'卖家id: '+${order.sellerid}"></P>
+                    </div>
+                    <hr>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- 消息展示 -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="输入消息...">
+                        <button th:onclick="|sendMessage('${order.sellerid}', '${order.bookid}')|">发送</button>
+                    </div>
+                </div>
+            </tbody>
+        </table>
+        <!--确认收货框-->
+        <div id="myModal" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>确认收货吗?</p>  
+                <div class="action-buttons">  
+                    <button id="confirmBtn">确认</button>  
+                    <button id="cancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+
+        <!--申诉框-->
+        <div id="appealmodal" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>请输入申诉原因：<input type="text" id="appealInput" name="appealContent" placeholder="请输入申诉原因"></p>
+                <div class="action-buttons">  
+                    <button id="appealBtn" type="button">确认</button>  
+                    <button id="appealcancelBtn">取消</button>  
+                    <button id="revokeappealBtn">撤销申述</button>  
+                </div>
+            </div>  
+        </div>
+    </div>
+</body>
+
+<script>
+    var socket;
+    var currentBookId;
+    var currentSellerName;
+    function openChatBox(sellerid, bookid) {
+        currentBookId = bookid;
+        
+        document.getElementById('chatContainer').style.display = 'block';
+        
+        if (!socket) {
+            connectWebSocket(sellerid, bookid);
+        } else {
+            // 从服务器获取消息历史
+            fetchHistory(sellerid, bookid);
+        }
+    }
+
+function closeChatBox()
+{
+    document.getElementById('chatContainer').style.display = 'none';
+}
+
+function connectWebSocket(sellerid, bookid) {
+    socket = new WebSocket('ws://122.9.5.126:8080/chat'); // 替换为你的WebSocket URL
+
+    socket.onopen = function() {
+        console.log('WebSocket 连接已建立');
+        fetchHistory(sellerid, bookid); // 连接建立时获取历史记录
+    };
+
+    socket.onmessage = function(event) {
+        var [bookId, msg] = event.data.split(':', 2);
+        if (bookId == currentBookId) {
+            var chatMessages = document.getElementById('chatMessages');
+            var messageElement = document.createElement('div');
+            //接收到的消息一定在左边
+            messageElement.classList.add('message');
+            messageElement.classList.add('left');
+            messageElement.textContent = msg;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    };
+
+    socket.onclose = function() {
+        console.log('WebSocket 连接已关闭');
+    };
+}
+
+function fetchHistory(sellerid, bookid) {
+    fetch(`/chat/${bookid}/${sellerid}`)
+        .then(response => response.json())
+        .then(messages => {
+            console.log("应该载入历史消息");
+            console.log(messages.length);
+            var chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = ''; // 清空现有消息
+            currentSellerName = messages[0].tousername;
+            messages.forEach(message => {
+                if(message.bookid != 0)
+                {
+                    //买家视角
+                    var messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    if(message.fromusername == currentSellerName)
+                        messageElement.classList.add('left');
+                    else
+                        messageElement.classList.add('right');
+                    messageElement.textContent = message.msg;
+                    chatMessages.appendChild(messageElement);
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching history:', error));
+}
+
+function sendMessage(toId, bookid) {
+    console.log("已发送消息");
+    var input = document.getElementById('chatInput');
+    var message = input.value;
+    if (message && socket && toId) {
+        // 消息格式 "toUserId:bookId:message"
+        socket.send(toId + ':' + bookid + ':' + message);
+        input.value = '';
+        var chatMessages = document.getElementById('chatMessages');
+        var messageElement = document.createElement('div');
+
+        //自己发送的消息一定在右边
+        messageElement.classList.add('message');
+        messageElement.classList.add('right');
+        messageElement.textContent = message;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+
+    function showAppealInput(orderid)
+    {
+        let modal = document.getElementById('appealmodal');  
+        let spans = document.getElementsByClassName("close");
+        modal.style.display = "block";
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+            modal.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let comfirm = document.getElementById("appealBtn");
+        let cancel = document.getElementById("appealcancelBtn");
+        let revoke = document.getElementById("revokeappealBtn");
+        comfirm.onclick = function()
+        {
+            appeal(orderid);
+        }
+        cancel.onclick = function()
+        {
+            modal.style.display = "none";
+        }
+        revoke.onclick = function()
+        {
+            revokeAppeal(orderid);
+        }
+    }
+
+    function shouhuo(orderid)
+    {
+        let modal = document.getElementById('myModal');  
+        let spans = document.getElementsByClassName("close");
+        modal.style.display = "block";
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+            modal.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let comfirm = document.getElementById("confirmBtn");
+        let cancel = document.getElementById("cancelBtn");
+        comfirm.onclick = function()
+        {
+            confirmOrder(orderid);
+        }
+        cancel.onclick = function()
+        {
+            modal.style.display = "none";
+        }
+    }
+
+    //确认订单
+    function confirmOrder(orderid)
+    {
+        let url = '/user/unconfirmorder/confirming/' + orderid;
+        fetch(url)
+        .then(response=>response.json())
+        .then(data=>{
+            console.log(data);
+            if (data.success || data)
+            {
+                alert("已确认收货");
+                location.reload();
+            }
+            else    
+                alert("确认收货失败!");
+            //让页面重新加载
+        })
+        .catch(error=>{
+            console.error('Error:', error);  
+        })
+    }
+
+    //申诉
+    function appeal(orderid)
+    {
+        let appealInput = document.getElementById('appealInput');
+        let appealContent = appealInput.value; // 获取input的值
+        let url = '/user/orderappeal/' + orderid + "/" + appealContent;
+        fetch(url)
+        // ,{
+        //     method: 'POST', 
+        //     credentials: 'include',//
+        //     headers: {  
+        //         'Content-Type': 'application/json',
+        //     },  
+        //     body: JSON.stringify({ appealContent: appealContent }), 
+        // }
+        .then(response=>response.json())
+        .then(data=>{
+            console.log(data);
+            if (data.success || data)
+            {
+                alert("申诉成功!");
+                location.reload();
+            }
+            else    
+                alert("申诉上传失败!");
+            //让页面重新加载
+        })
+        .catch(error=>{
+            console.error('Error:', error);  
+        })
+    }
+
+    //撤销申诉
+    function revokeAppeal(orderid)
+    {
+        let url = '/user/revokeorderappeal/' + orderid;
+        fetch(url)
+        .then(response=>response.json())
+        .then(data=>{
+            console.log(data);
+            if (data.success || data)
+            {
+                alert("申诉撤销成功成功!");
+                location.reload();
+            }
+            else    
+                alert("申述撤销失败!");
+            //让页面重新加载
+        })
+        .catch(error=>{
+            console.error('Error:', error);  
+        })
+    }
+
+</script>
+<script src="/js/userinfo.js"></script>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员中心</title>
+    <link rel="stylesheet" href="/css/manager.css">
+</head>
+<body>
+    <!-- 头部区域 -->
+    <div class="header w">
+        <!-- logo制作 -->
+        <div class="logo"><h1><a href="https://www.seu.edu.cn">东南大学</a></h1></div>
+
+        
+        <!-- 搜索栏制作 -->
+        <form th:action="@{/common/searchBook}" method="post" target="_blank">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="输入关键词" name="searchContent">
+                <button type="submit" id="searchBnt"></button>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+        </form>
+
+
+        <!-- 导航栏制作 -->
+        <!-- 实际开发中,会用li+a的做法,显示更清晰,且防止搜索引擎辨别为关键字堆砌嫌疑 -->
+        <div class="nav">
+            <ul>
+                <li><a th:href="@{/manager/lable}" target="_blank">书籍标签管理</a></li>
+                <li><a th:href="@{/manager/manageuser}" target="_blank">用户管理</a></li><!--可能需要根据后端逻辑进行新的修改-->
+                <li><a th:href="@{/manager/handleappeal}" target="_blank">用户申诉处理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!--侧边栏-->
+    <aside>
+        <section>
+            <div id="userinfo">
+                <!--请在这帮我完善用户信息展示-->
+                <p><strong>用户名:</strong> JohnDoe</p>  
+            </div>
+            <div id="sideChoice">
+                <ul>
+                    <li onclick="addUser()">添加单个用户</li>
+                    <li onclick="addLotsOfUser()">批量添加用户</li>
+                </ul>
+            </div>
+        </section>
+    </aside>
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>       
+                <th width="10%" > 用户名</th> 
+                <th width="40">密码</th>
+                <th width="10%">重置密码</th>
+                <th width="10%">删除用户</th>
+            </thead>
+    
+            <tbody id="mainBookInfo">
+                <tr th:each="user : ${userlist}">  
+                    <!-- 使用th:text或{{}}（取决于你的Thymeleaf版本和配置）来显示标签的属性 -->  
+                    <td th:text="${user.username}" width="20%"></td> <!-- 假设'id'是标签号的属性 -->  
+                    <td th:text="${user.password}" width="50%"></td> <!-- 假设'name'是标签名的属性 -->  
+                    <td width="15%">  
+                        <!-- 这里可以添加一些操作按钮或链接，例如编辑或删除 -->  
+                        <button th:text="'重置密码'" th:value="${user.id}" onclick="editPassword(this)"></button>  
+                        <!-- 注意：th:onclick中的JavaScript代码是示例，你可能需要根据你的实际需求来调整 -->  
+                    </td>  
+                    <td width="15%">  
+                        <!-- 这里可以添加一些操作按钮或链接，例如编辑或删除 -->  
+                        <button th:text="'删除用户'" th:value="${user.id}" onclick="deleteUser(this)"></button>  
+                        <!-- 注意：th:onclick中的JavaScript代码是示例，你可能需要根据你的实际需求来调整 -->  
+                    </td>  
+                </tr>
+            </tbody>
+        </table>
+        <!--删除确认框-->
+        <div id="myModal" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>你确定要执行删除该用户吗？</p>  
+                <div class="action-buttons">  
+                    <button id="confirmBtn">确认</button>  
+                    <button id="cancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+
+        <!--更改密码框-->
+        <div id="passwordEditBox" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <input type="text" id = "passwordinput" maxlength="30" placeholder="请输入更改后的密码" name = "password" required > 
+                <div class="action-buttons">  
+                    <button id="editconfirmBtn">确认</button>  
+                    <button id="editcancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+
+        <!--添加用户表单-->
+        <form id="addUserForm" th:action="@{/manager/addUser}" method="post" class="modal">  
+            <!-- 表单内容，如书籍标签的输入框等  -->
+            <div class="modal-content">
+                <input type="text" placeholder="请输入用户名" name = "username" required >  
+                <br><br>  
+                <button type="submit" class="form-button">确认</button>  
+                <button type="button" class="form-button" onclick="hideForm()">取消</button>
+            </div>  
+        </form>
+
+        <!--通过txt文件批量添加用户-->
+        <form id="addUserByFile" th:action="@{/manager/addALotsOfUser}" method="post" enctype="multipart/form-data" class="modal">
+            <div class="modal-content">
+                <input type="file" name="file" />
+                <button type="submit">确认</button>
+                <button type="button" class="form-button" onclick="hidefileAdd()">取消</button>
+            </div>        
+        </form>
+    </div>
+</body>
+<script>
+    function hidefileAdd()
+    {
+        document.getElementById("addUserByFile").style.display = 'none';
+    }
+
+    function addLotsOfUser()
+    {
+        document.getElementById('addUserByFile').style.display = 'block';
+    }
+
+    function addUser()
+    {
+        // 显示表单  
+        document.getElementById('addUserForm').style.display = 'block';
+    }
+
+    function editPassword(button)
+    {
+        let editPasswordBox = document.getElementById("passwordEditBox");
+        editPasswordBox.style.display = "block";
+
+        var userid = button.value;
+        
+            
+        let cancel = document.getElementById("editcancelBtn");
+        cancel.onclick = function()
+        {
+            editPasswordBox.style.display = 'none';
+        };
+
+        let spans = document.getElementsByClassName("close");
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+                editPasswordBox.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let confirm = document.getElementById("editconfirmBtn");
+        confirm.onclick = function()
+        {
+            var passwordinput = document.getElementById("passwordinput");
+            var password = passwordinput.value;
+            let url  = "/manager/editPassword/"+userid+"/" + password;
+            console.log(url);
+            fetch(url)
+            .then(response=>response.json())
+            .then(data=>{
+                console.log(data);
+                if (data.success || data)
+                    {alert("密码修改成功!");
+                    location.reload();}
+                else
+                    alert("密码修改失败!");
+            })
+            .catch(error=>{
+                console.error('Error:', error);  
+            })
+        }
+    }
+
+    function deleteUser(button)
+    {
+        var userid = button.value;
+        let editbox = document.getElementById("myModal");
+        editbox.style.display = 'block';
+
+        let cancel = document.getElementById("cancelBtn");
+        cancel.onclick = function()
+        {
+            editbox.style.display = 'none';
+        };
+
+        let spans = document.getElementsByClassName("close");
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+                editbox.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let confirm = document.getElementById("confirmBtn");
+        confirm.onclick = function()
+        {
+            let url  = "/manager/deleteUser/"+userid;
+            fetch(url)
+            .then(response=>response.json())
+            .then(data=>{
+                console.log(data);
+                if (data.success || data)
+                    {alert("用户删除成功!");
+                    location.reload();}
+                else
+                    alert("用户删除失败!");
+                
+            })
+            .catch(error=>{
+                console.error('Error:', error);  
+            })
+        }
+    }
+
+    function hideForm() {  
+        // 隐藏表单  
+        document.getElementById('addUserForm').style.display = 'none';  
+    }
+</script>
+</html>

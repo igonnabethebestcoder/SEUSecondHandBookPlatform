@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员中心</title>
+    <link rel="stylesheet" href="/css/manager.css">
+</head>
+<body>
+    <!-- 头部区域 -->
+    <div class="header w">
+        <!-- logo制作 -->
+        <div class="logo"><h1><a href="https://www.seu.edu.cn">东南大学</a></h1></div>
+
+        
+        <!-- 搜索栏制作 -->
+        <form th:action="@{/common/searchBook}" method="post" target="_blank">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="输入关键词" name="searchContent">
+                <button type="submit" id="searchBnt"></button>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+        </form>
+
+
+        <!-- 导航栏制作 -->
+        <!-- 实际开发中,会用li+a的做法,显示更清晰,且防止搜索引擎辨别为关键字堆砌嫌疑 -->
+        <div class="nav">
+            <ul>
+                <li><a th:href="@{/manager/lable}" target="_blank">书籍标签管理</a></li>
+                <li><a th:href="@{/manager/manageuser}" target="_blank">用户管理</a></li><!--可能需要根据后端逻辑进行新的修改-->
+                <li><a th:href="@{/manager/handleappeal}" target="_blank">用户申诉处理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!--侧边栏-->
+    <aside>
+        <section>
+            <div id="sideChoice">
+                <ul>
+                    <li><a th:href="@{/manager/handleappeal}">未处理的申诉</a></li>
+                    <li><a th:href="@{/manager/hashandleappeal}">已处理的申诉</a></li>
+                </ul>
+            </div>
+        </section>
+    </aside>
+    <div id="shoppingCarList">
+        <table width="100%" border="0">
+            <thead>
+                <th></th>
+                <th width="40%" > 订单详情</th> 
+                <th width="30%">申诉内容</th>
+                <th width="15%" th:if="${kindoforder == 0}"> 处理</th> 
+                <th width="15%" th:if="${kindoforder == 0}"> 处理</th> 
+                <th width="15%" th:if="${kindoforder != 0}"> 处理结果</th> 
+            </thead>
+    
+            <tbody id="mainBookInfo">
+                <tr th:each="order : ${orderlist}">  
+                    <!-- 使用th:text或{{}}（取决于你的Thymeleaf版本和配置）来显示标签的属性 -->  
+                    <td>
+                        <img th:src="@{/images/{filename}(filename=${order.img})}" alt="图片加载失败" >
+                    </td>
+                    <td width="40%">
+                        <p th:text="'卖家id:' + ${order.sellerid}"></p>
+                        <p th:text="'买家id:' + ${order.buyerid}"></p>
+                        <p th:text="'交易时间:'+${order.happenedtime}"></p>
+                        <p th:text="'交易金额: ￥'+${order.price}"></p>
+                    </td> <!-- 假设'id'是标签号的属性 -->  
+                    <td th:text="${order.detail}" width="30%"></td> <!-- 假设'name'是标签名的属性 -->
+                    <td width="15%" th:if="${order.appealoutcome == 0}">  
+                        <button th:text="'通过'" th:value="${order.id}" onclick="AppealSuccess(this)"></button>    
+                    </td>  
+                    <td width="15%" th:if="${order.appealoutcome == 0}">  
+                        <button th:text="'不通过'" th:value="${order.id}" onclick="AppealFail(this)"></button>  
+                    </td> 
+                    <td width="30%" th:if="${order.appealoutcome != 0}">  
+                        <p th:if="${order.appealoutcome == 1}" th:text="'申述成功!'"></p>
+                        <p th:if="${order.appealoutcome == -1}" th:text="'申述失败!'"></p>
+                    </td> 
+                </tr>
+            </tbody>
+        </table>
+        <!--申诉通过框-->
+        <div id="appealpass" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>你确定通过该申诉吗？</p>
+                <div class="action-buttons">  
+                    <button id="appealconfirmBtn">确认</button>  
+                    <button id="appealcancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+
+        <!--申诉拒绝框-->
+        <div id="appealfail" class="modal">  
+            <div class="modal-content">  
+                <span class="close">&times;</span>  
+                <p>你确定拒绝该申诉吗？</p>  
+                <div class="action-buttons">  
+                    <button id="confirmBtn">确认</button>  
+                    <button id="cancelBtn">取消</button>  
+                </div>  
+            </div>  
+        </div>
+    </div>
+</body>
+<script>
+   function AppealSuccess(button)
+   {
+        let orderid = button.value;
+
+        let appealpass = document.getElementById("appealpass");
+        appealpass.style.display="block";
+
+        let cancel = document.getElementById("appealcancelBtn");
+        cancel.onclick = function()
+        {
+            appealpass.style.display = 'none';
+        };
+
+        let spans = document.getElementsByClassName("close");
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+                appealpass.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let confirm = document.getElementById("appealconfirmBtn");
+        confirm.onclick = function()
+        {
+            let url  = "/manager/handleappeal/"+orderid+"/1";
+            fetch(url)
+            .then(response=>response.json())
+            .then(data=>{
+                console.log(data);
+                if (data.success || data)
+                    {alert("申述处理成功!");
+                    location.reload();}
+                else
+                    alert("申述处理失败!");
+            })
+            .catch(error=>{
+                console.error('Error:', error);  
+            })
+        }
+   }
+
+   function AppealFail(button)
+   {
+        let orderid = button.value;
+
+        let appealpass = document.getElementById("appealfail");
+        appealpass.style.display="block";
+
+        let cancel = document.getElementById("cancelBtn");
+        cancel.onclick = function()
+        {
+            appealpass.style.display = 'none';
+        };
+
+        let spans = document.getElementsByClassName("close");
+        for (var i = 0; i < spans.length; i++) {  
+            // 为每个 span 元素添加点击事件监听器  
+            spans[i].onclick = function() {    
+                appealpass.style.display = "none"; // 点击时隐藏模态框  
+            };  
+        }
+
+        let confirm = document.getElementById("confirmBtn");
+        confirm.onclick = function()
+        {
+            let url  = "/manager/handleappeal/"+orderid+"/-1";
+            fetch(url)
+            .then(response=>response.json())
+            .then(data=>{
+                console.log(data);
+                if (data.success || data)
+                    {alert("申述处理成功!");
+                    location.reload();}
+                else
+                    alert("申述处理失败!");
+            })
+            .catch(error=>{
+                console.error('Error:', error);  
+            })
+        }
+   }
+</script>
+</html>
